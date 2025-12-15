@@ -22,7 +22,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install requests
+        pip install requests pyairtable
     
     - name: Run ImmoScout24 Scraper
       run: |
@@ -54,6 +54,15 @@ jobs:
       run: |
         python sync_airtable_plugin.py
     
+    - name: Upload Images to Airtable
+      env:
+        AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+        AIRTABLE_BASE_PLUGIN: ${{ secrets.AIRTABLE_BASE_PLUGIN }}
+        AIRTABLE_TABLE_PLUGIN: ${{ secrets.AIRTABLE_TABLE_PLUGIN }}
+      run: |
+        python upload_images_to_airtable.py
+      continue-on-error: true  # Don't fail if images can't be uploaded
+    
     - name: Upload CSV as Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -81,3 +90,4 @@ jobs:
         echo "✅ **Status:** Scraping completed!" >> $GITHUB_STEP_SUMMARY
         echo "✅ **Chatbot Table:** Synced (nur Verfügbar)" >> $GITHUB_STEP_SUMMARY
         echo "✅ **Plugin Table:** Synced (alle Immobilien)" >> $GITHUB_STEP_SUMMARY
+        echo "📸 **Images:** Uploaded to Airtable Attachments" >> $GITHUB_STEP_SUMMARY
