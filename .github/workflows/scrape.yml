@@ -1,4 +1,4 @@
-name: Scrape ImmoScout24
+name: Scrape ImmoScout24 & Sync Airtable
 
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch: # Manueller Trigger
 
 jobs:
-  scrape:
+  scrape-and-sync:
     runs-on: ubuntu-latest
     
     steps:
@@ -24,21 +24,48 @@ jobs:
       run: |
         pip install requests
     
-    - name: Run scraper
+    - name: Run ImmoScout24 Scraper
       run: |
         python immoscout_mobile_api_scraper.py
     
-    - name: Upload CSV
+    - name: Check if CSV was created
+      run: |
+        if [ ! -f immoscout_mutzel.csv ]; then
+          echo "❌ CSV nicht erstellt - Scraping failed!"
+          exit 1
+        fi
+        echo "✅ CSV erstellt - $(wc -l < immoscout_mutzel.csv) Zeilen"
+    
+    - name: Sync to Airtable (Chatbot)
+      env:
+        AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+        AIRTABLE_BASE_CHATBOT: ${{ secrets.AIRTABLE_BASE_CHATBOT }}
+        AIRTABLE_TABLE_CHATBOT: ${{ secrets.AIRTABLE_TABLE_CHATBOT }}
+      run: |
+        python sync_airtable_chatbot.py
+    
+    - name: Upload CSV as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: immoscout-data-${{ github.run_number }}
         path: immoscout_mutzel.csv
         retention-days: 7
     
-    - name: Commit and push if changed
+    - name: Commit and push CSV (optional)
       run: |
         git config --global user.name 'GitHub Action'
         git config --global user.email 'action@github.com'
         git add immoscout_mutzel.csv || true
-        git diff --staged --quiet || git commit -m "Update ImmoScout24 data - $(date +'%Y-%m-%d %H:%M')"
+        git diff --staged --quiet || git commit -m "📊 Update ImmoScout24 data - $(date +'%Y-%m-%d %H:%M')"
         git push || true
+      continue-on-error: true
+    
+    - name: Create Summary
+      run: |
+        echo "## 📊 Scraping Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Date:** $(date +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+        echo "- **Properties:** $(tail -n +2 immoscout_mutzel.csv | wc -l)" >> $GITHUB_STEP_SUMMARY
+        echo "- **CSV Size:** $(du -h immoscout_mutzel.csv | cut -f1)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Status:** Scraping & Airtable Sync completed!" >> $GITHUB_STEP_SUMMARY
