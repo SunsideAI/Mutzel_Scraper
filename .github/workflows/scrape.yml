@@ -41,6 +41,7 @@ jobs:
         AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
         AIRTABLE_BASE_CHATBOT: ${{ secrets.AIRTABLE_BASE_CHATBOT }}
         AIRTABLE_TABLE_CHATBOT: ${{ secrets.AIRTABLE_TABLE_CHATBOT }}
+        AIRTABLE_AUTO_CONFIRM: "true"
       run: |
         python sync_airtable_chatbot.py
     
