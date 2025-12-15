@@ -134,13 +134,15 @@ def csv_to_airtable_record(row: dict) -> dict:
     if len(beschreibung) > MAX_DESCRIPTION_LENGTH:
         beschreibung = beschreibung[:MAX_DESCRIPTION_LENGTH-3] + "..."
     
-    # Bilder (nur erste 5 für Chatbot)
+    # Bilder - Nur ERSTE URL als Text (für Chatbot)
     bilder_str = row.get("bilder", "")
+    erste_bild_url = ""
+    
     if bilder_str:
         bilder_list = bilder_str.split("\n")
         bilder_list = [b.strip() for b in bilder_list if b.strip()]
-        bilder_list = bilder_list[:MAX_IMAGES]  # Nur erste 5
-        bilder_str = "\n".join(bilder_list)
+        if bilder_list:
+            erste_bild_url = bilder_list[0]  # Nur erste URL
     
     # Preis - extrahiere nur die Zahl
     preis = row.get("preis", "")
@@ -158,7 +160,7 @@ def csv_to_airtable_record(row: dict) -> dict:
         "Webseite": row.get("url", ""),
         "Objektnummer": row.get("expose_id", ""),
         "Beschreibung": beschreibung,
-        "Bild": bilder_str,  # Erste 5 Bilder
+        "Bild": erste_bild_url,  # Nur erste URL als Text!
         "Preis": preis_value,  # Als Zahl
         "Standort": f"{row.get('plz', '')} {row.get('ort', '')}".strip(),
     }
