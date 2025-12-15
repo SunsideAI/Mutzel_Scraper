@@ -1,0 +1,44 @@
+name: Scrape ImmoScout24
+
+on:
+  schedule:
+    # Läuft täglich um 6:00 UTC (7:00 CET / 8:00 CEST)
+    - cron: '0 6 * * *'
+  
+  workflow_dispatch: # Manueller Trigger
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install requests
+    
+    - name: Run scraper
+      run: |
+        python immoscout_mobile_api_scraper.py
+    
+    - name: Upload CSV
+      uses: actions/upload-artifact@v4
+      with:
+        name: immoscout-data-${{ github.run_number }}
+        path: immoscout_mutzel.csv
+        retention-days: 7
+    
+    - name: Commit and push if changed
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        git add immoscout_mutzel.csv || true
+        git diff --staged --quiet || git commit -m "Update ImmoScout24 data - $(date +'%Y-%m-%d %H:%M')"
+        git push || true
