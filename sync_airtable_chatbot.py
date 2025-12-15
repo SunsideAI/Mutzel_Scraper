@@ -142,6 +142,15 @@ def csv_to_airtable_record(row: dict) -> dict:
         bilder_list = bilder_list[:MAX_IMAGES]  # Nur erste 5
         bilder_str = "\n".join(bilder_list)
     
+    # Preis - extrahiere nur die Zahl
+    preis = row.get("preis", "")
+    # "299.000,00 €" → 299000
+    preis_clean = preis.replace(".", "").replace(",00", "").replace(",", "").replace("€", "").strip()
+    try:
+        preis_value = int(preis_clean) if preis_clean else preis
+    except:
+        preis_value = preis  # Fallback auf Original
+    
     # Mapping zu deinen Airtable Fields
     fields = {
         "Titel": row.get("titel", ""),
@@ -150,7 +159,7 @@ def csv_to_airtable_record(row: dict) -> dict:
         "Objektnummer": row.get("expose_id", ""),
         "Beschreibung": beschreibung,
         "Bild": bilder_str,  # Erste 5 Bilder
-        "Preis": row.get("preis", ""),
+        "Preis": preis_value,  # Als Zahl
         "Standort": f"{row.get('plz', '')} {row.get('ort', '')}".strip(),
     }
     
