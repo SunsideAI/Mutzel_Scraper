@@ -45,6 +45,15 @@ jobs:
       run: |
         python sync_airtable_chatbot.py
     
+    - name: Sync to Airtable (Plugin)
+      env:
+        AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+        AIRTABLE_BASE_PLUGIN: ${{ secrets.AIRTABLE_BASE_PLUGIN }}
+        AIRTABLE_TABLE_PLUGIN: ${{ secrets.AIRTABLE_TABLE_PLUGIN }}
+        AIRTABLE_AUTO_CONFIRM: "true"
+      run: |
+        python sync_airtable_plugin.py
+    
     - name: Upload CSV as Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -69,4 +78,6 @@ jobs:
         echo "- **Properties:** $(tail -n +2 immoscout_mutzel.csv | wc -l)" >> $GITHUB_STEP_SUMMARY
         echo "- **CSV Size:** $(du -h immoscout_mutzel.csv | cut -f1)" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "✅ **Status:** Scraping & Airtable Sync completed!" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Status:** Scraping completed!" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Chatbot Table:** Synced (nur Verfügbar)" >> $GITHUB_STEP_SUMMARY
+        echo "✅ **Plugin Table:** Synced (alle Immobilien)" >> $GITHUB_STEP_SUMMARY
