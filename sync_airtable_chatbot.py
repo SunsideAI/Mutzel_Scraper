@@ -212,10 +212,16 @@ def main():
     
     # Delete old records
     if existing_records:
-        confirm = input(f"\n⚠️  {len(existing_records)} Records löschen und neu erstellen? (j/n): ")
-        if confirm.lower() != "j":
-            print("Abgebrochen!")
-            return
+        # Auto-confirm in GitHub Actions (kein interaktives Terminal)
+        auto_confirm = os.getenv("AIRTABLE_AUTO_CONFIRM", "false").lower() == "true"
+        
+        if auto_confirm:
+            print(f"\n⚠️  Auto-Confirm: {len(existing_records)} Records werden gelöscht...")
+        else:
+            confirm = input(f"\n⚠️  {len(existing_records)} Records löschen und neu erstellen? (j/n): ")
+            if confirm.lower() != "j":
+                print("Abgebrochen!")
+                return
         
         delete_all_records(existing_records)
     
