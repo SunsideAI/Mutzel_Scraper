@@ -150,7 +150,7 @@ def collect_all_listings():
 def parse_listing(listing: dict) -> dict:
     expose_id = listing.get("exposeId", "")
     is_buy = listing.get("isBuy", True)
-    kategorie = "Kauf" if is_buy else "Miete"
+    kategorie = "Kaufen" if is_buy else "Mieten"
     unterkategorie = listing.get("type", "Wohnung")
     
     price = listing.get("price", 0)
@@ -166,7 +166,7 @@ def parse_listing(listing: dict) -> dict:
     is_reference = listing.get("isReference", False)
     status = "Vermarktet" if is_reference else "Verfügbar"
     
-    url = f"https://www.immobilienscout24.de/expose/{expose_id}"
+    url = f"https://mutzel-immobilien.onepage.me/immobilie?id={expose_id}"
     
     return {
         "expose_id": str(expose_id),
