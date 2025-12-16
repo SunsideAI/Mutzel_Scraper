@@ -294,7 +294,11 @@ def export_csv(properties: List[dict], filename: str = "immoscout_mutzel.csv"):
             p["bilder"] = "\n".join(p["bilder"])
     
     with open(filename, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=properties[0].keys())
+        writer = csv.DictWriter(
+            f, 
+            fieldnames=properties[0].keys(),
+            quoting=csv.QUOTE_MINIMAL  # Nur bei Bedarf quoten!
+        )
         writer.writeheader()
         writer.writerows(properties)
     
