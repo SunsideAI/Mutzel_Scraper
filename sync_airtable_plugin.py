@@ -121,6 +121,27 @@ def create_records(records):
 def csv_to_airtable_plugin_record(row: dict) -> dict:
     """Konvertiere CSV Row zu Airtable Record (PLUGIN Format - ALLE Felder!)"""
     
+    # DEBUG: Print raw kategorie value
+    raw_kategorie = row.get("kategorie", "")
+    print(f"  [DEBUG] Raw kategorie: {repr(raw_kategorie)}")
+    
+    # AGGRESSIVE Quote Stripping!
+    def clean_value(val):
+        if not val:
+            return ""
+        # Strip whitespace
+        val = str(val).strip()
+        # Strip ALL types of quotes
+        val = val.strip('"').strip("'").strip('„').strip('"').strip('"')
+        # Strip again in case nested
+        val = val.strip('"').strip("'")
+        return val
+    
+    kategorie_clean = clean_value(row.get("kategorie", ""))
+    unterkategorie_clean = clean_value(row.get("unterkategorie", ""))
+    
+    print(f"  [DEBUG] Clean kategorie: {repr(kategorie_clean)}")
+    
     # Preis als Zahl
     preis = row.get("preis", "")
     preis_clean = preis.replace(".", "").replace(",00", "").replace("€", "").strip()
@@ -166,11 +187,11 @@ def csv_to_airtable_plugin_record(row: dict) -> dict:
         "url": row.get("url", ""),
         
         # Kategorie & Typ
-        "kategorie": row.get("kategorie", "").strip().strip('"'),  # Kaufen/Mieten (strip quotes!)
-        "unterkategorie": row.get("unterkategorie", "").strip().strip('"'),  # Wohnung/Haus
-        "marketing_typ": "BUY" if row.get("kategorie", "").strip().strip('"') == "Kaufen" else "RENT",
-        "objekt_typ": row.get("unterkategorie", "").strip().strip('"'),  # Wohnung/Haus
-        "rs_typ": row.get("kategorie", "").strip().strip('"'),  # Kaufen/Mieten
+        "kategorie": kategorie_clean,  # Kaufen/Mieten (cleaned!)
+        "unterkategorie": unterkategorie_clean,  # Wohnung/Haus (cleaned!)
+        "marketing_typ": "BUY" if kategorie_clean == "Kaufen" else "RENT",
+        "objekt_typ": unterkategorie_clean,  # Wohnung/Haus
+        "rs_typ": kategorie_clean,  # Kaufen/Mieten
         
         # Location
         "plz": row.get("plz", ""),
