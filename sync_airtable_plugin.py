@@ -179,6 +179,9 @@ def csv_to_airtable_plugin_record(row: dict) -> dict:
     # Erste Bild URL einzeln
     erste_bild = bilder_list[0] if bilder_list else ""
     
+    # CONVERSION: "Kaufen" → "Kauf", "Mieten" → "Miete" für Plugin Table
+    kategorie_plugin = "Kauf" if kategorie_clean == "Kaufen" else "Miete"
+    
     # Mapping zu Plugin Airtable Fields
     fields = {
         # Basis Felder
@@ -186,12 +189,12 @@ def csv_to_airtable_plugin_record(row: dict) -> dict:
         "expose_id": row.get("expose_id", ""),
         "url": row.get("url", ""),
         
-        # Kategorie & Typ
-        "kategorie": kategorie_clean,  # Kaufen/Mieten (cleaned!)
-        "unterkategorie": unterkategorie_clean,  # Wohnung/Haus (cleaned!)
-        "marketing_typ": "BUY" if kategorie_clean == "Kaufen" else "RENT",
+        # Kategorie & Typ (PLUGIN uses "Kauf"/"Miete"!)
+        "kategorie": kategorie_plugin,  # Kauf/Miete
+        "unterkategorie": unterkategorie_clean,  # Wohnung/Haus
+        "marketing_typ": "BUY" if kategorie_plugin == "Kauf" else "RENT",
         "objekt_typ": unterkategorie_clean,  # Wohnung/Haus
-        "rs_typ": kategorie_clean,  # Kaufen/Mieten
+        "rs_typ": kategorie_plugin,  # Kauf/Miete
         
         # Location
         "plz": row.get("plz", ""),
