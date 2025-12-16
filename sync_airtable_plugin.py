@@ -166,11 +166,11 @@ def csv_to_airtable_plugin_record(row: dict) -> dict:
         "url": row.get("url", ""),
         
         # Kategorie & Typ
-        "kategorie": row.get("kategorie", ""),  # Kauf/Miete
-        "unterkategorie": row.get("unterkategorie", ""),  # Wohnung/Haus
-        "marketing_typ": "BUY" if row.get("kategorie") == "Kauf" else "RENT",
-        "objekt_typ": row.get("unterkategorie", ""),  # Wohnung/Haus
-        "rs_typ": row.get("kategorie", ""),  # Kauf/Miete
+        "kategorie": row.get("kategorie", "").strip().strip('"'),  # Kaufen/Mieten (strip quotes!)
+        "unterkategorie": row.get("unterkategorie", "").strip().strip('"'),  # Wohnung/Haus
+        "marketing_typ": "BUY" if row.get("kategorie", "").strip().strip('"') == "Kaufen" else "RENT",
+        "objekt_typ": row.get("unterkategorie", "").strip().strip('"'),  # Wohnung/Haus
+        "rs_typ": row.get("kategorie", "").strip().strip('"'),  # Kaufen/Mieten
         
         # Location
         "plz": row.get("plz", ""),
