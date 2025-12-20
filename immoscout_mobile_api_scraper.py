@@ -166,7 +166,7 @@ def parse_listing(listing: dict) -> dict:
     is_reference = listing.get("isReference", False)
     status = "Vermarktet" if is_reference else "Verfügbar"
     
-    url = f"https://mutzel-immobilien.onepage.me/immobilie?id={expose_id}"
+    url = f"https://www.immobilien-mutzel.de/immobilie?id={expose_id}"
     
     return {
         "expose_id": str(expose_id),
