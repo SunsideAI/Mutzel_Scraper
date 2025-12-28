@@ -1,12 +1,12 @@
 name: Scrape ImmoScout24 & Sync Airtable
-
 on:
   schedule:
     # Läuft täglich um 6:00 UTC (7:00 CET / 8:00 CEST)
     - cron: '0 6 * * *'
+    # Läuft täglich um 18:00 UTC (19:00 CET / 20:00 CEST)
+    - cron: '0 18 * * *'
   
   workflow_dispatch: # Manueller Trigger
-
 jobs:
   scrape-and-sync:
     runs-on: ubuntu-latest
